@@ -1,0 +1,55 @@
+
+
+http://dmweb.free.fr/?q=node/140
+
+https://developer.mozilla.org/fr/docs/Web/API/ImageData
+
+
+
+
+
+IMG1 and IMG2 data
+
+IMG1 and IMG2 items contain images. The only difference between these two formats is the endian of the first two words that define the size of the image:
+Header
+
+    1 word (IMG1: big endian, IMG2: little endian): Image width in pixels
+    1 word (IMG1: big endian, IMG2: little endian): Image height in pixels
+
+Data
+
+IMG1 and IMG2 data is used to store 16 colors images compressed with some sort of RLE algorithm (Run Length Encoding). The data is divided in nibbles (4 bits). Nibbles are grouped into blocks of variable length (at least 2 and always an even number). Each block defines a set of pixels to add to the image.
+
+The image is considered as a single sequence of pixels starting at the top left corner of the image and going line by line to the bottom right corner.
+
+Here is the algorithm to decode a block:
+Read two nibbles: Nibble1 and Nibble2
+
+Depending on the hexadecimal value of Nibble1, several cases are possible:
+
+    0, 1, 2, 3, 4, 5, 6, 7: Add 'Nibble1 + 1' pixels of the color specified in Nibble2.
+    8: Read the next byte (2 nibbles) in Byte1. Add 'Byte1 + 1' pixels of the color specified in Nibble2.
+    C: Read the next word (4 nibbles) in Word1. Add 'Word1 + 1' pixels of the color specified in Nibble2.
+    B: Read the next byte (2 nibbles) in Byte1. Add 'Byte1 + 1' pixels by copying pixels from the previous line of the image (position of current pixel minus width of image). Then add one pixel of the color specified in Nibble2.
+    F: Read the next word (4 nibbles) in Word1. Add 'Word1 + 1' pixels by copying pixels from the previous line of the image (position of current pixel minus width of image). Then add one pixel of the color specified in Nibble2.
+    9: Read the next byte (2 nibbles) in Byte1.
+    If Byte1 is even,
+        Add one pixel of the color specified in Nibble2.
+        Add 'Byte1' pixels by reading a nibble (color) for each pixel.
+
+    If Byte1 is odd,
+        Nibble2 is equal to 0 and is ignored.
+        Add 'Byte1 + 1' pixels by reading a nibble (color) for each pixel.
+    A: Add 'Nibble2 + 1' transparent pixels (only used in DL items in animation files)
+    E: Transparent pixels (only used in DL items in animation files)
+    Depending on the hexadecimal value of Nibble2, several cases are possible:
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, A, B, C: Add 'Nibble2 + 17' transparent pixels.
+        D: Read the next byte (2 nibbles) in Byte1. Add 'Byte1 + 1' transparent pixels.
+        E: Read the next byte (2 nibbles) in Byte1. Add 'Byte1 + 257' transparent pixels.
+        F: Read the next word (4 nibbles) in Word1. Add 'Word1 + 1' transparent pixels.
+    D: Unused value.
+
+
+Palette ?
+
+	_FadeToPalette
