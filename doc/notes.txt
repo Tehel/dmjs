@@ -5,6 +5,7 @@ http://dmweb.free.fr/?q=node/140
 https://developer.mozilla.org/fr/docs/Web/API/ImageData
 
 
+\s+\w+.js:\d+:\d+
 
 
 

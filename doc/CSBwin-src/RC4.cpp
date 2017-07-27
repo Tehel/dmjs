@@ -1,10 +1,7 @@
-#include "stdafx.h"
 
 //*********WARNING*************************
-// This is NOT the RC4 encryption algorithm!!!!
-// Just the key preparation is from RC4.
-// The rest is garbage that I invented and is
-// not secure in any way!!!!
+// This is NOT the RC4 encryption algorithm!!!! Only the key preparation is from RC4.
+// The rest is garbage that I invented and is not secure in any way!!!!
 
 #define SIZE 8192
 
@@ -51,9 +48,8 @@ void RC4_prepare_key(unsigned char *key_data_ptr, i32 key_data_len)
 }
 
 // xor the input buffer in place with the corresponding bytes of the key
-void RC4_encipher(unsigned char *buffer_ptr,  i32 buffer_len, i32 position) {
-    for (i32 i=0; i<buffer_len; i++) {
-        buffer_ptr[i] ^= rc4_key.m_state[position % SIZE];
-        position++;
-    };
+// reversible, so also works for decipher
+void RC4_encipher(unsigned char *buffer_ptr, i32 buffer_len, i32 position) {
+    for (int i=0; i<buffer_len; i++)
+        buffer_ptr[i] ^= rc4_key.m_state[(position+i) % SIZE];
 }
